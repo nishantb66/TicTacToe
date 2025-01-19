@@ -63,6 +63,9 @@ io.on("connection", (socket) => {
     } else {
       io.to(socket.id).emit("roomFull", "Room is full!");
     }
+
+    // Notify other users in the room about the new player
+    socket.to(roomId).emit("userJoined", `${username} has joined the room.`);
   });
 
   socket.on("makeMove", ({ roomId, index, symbol }) => {
@@ -144,25 +147,3 @@ const saveGameResult = async (roomId, board, result, players) => {
     console.error("Error saving game result:", err);
   }
 };
-
-socket.on("joinRoom", ({ roomId, username }) => {
-  socket.join(roomId);
-
-  if (!activeGames[roomId]) {
-    activeGames[roomId] = {
-      players: [{ socketId: socket.id, username }],
-      turn: "X",
-      board: Array(9).fill(null),
-    };
-    io.to(socket.id).emit("assignSymbol", "X");
-  } else if (activeGames[roomId].players.length === 1) {
-    activeGames[roomId].players.push({ socketId: socket.id, username });
-    io.to(socket.id).emit("assignSymbol", "O");
-    io.to(roomId).emit("gameStart", "Game is ready. Let the match begin!");
-  } else {
-    io.to(socket.id).emit("roomFull", "Room is full!");
-  }
-
-  // Notify other users in the room about the new player
-  socket.to(roomId).emit("userJoined", `${username} has joined the room.`);
-});
