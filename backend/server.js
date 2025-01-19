@@ -14,13 +14,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://tic-tac-toe-ivory-beta.vercel.app/",
+    origin: "https://tic-tac-toe-ivory-beta.vercel.app",
     methods: ["GET", "POST"],
   },
 });
 
 const corsOptions = {
-  origin: "https://tic-tac-toe-ivory-beta.vercel.app/", // Allow requests from this frontend
+  origin: "https://tic-tac-toe-ivory-beta.vercel.app", // Allow requests from this frontend
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true, // If you use cookies or authentication
 };
