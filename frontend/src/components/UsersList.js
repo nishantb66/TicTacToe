@@ -80,7 +80,7 @@ const UsersList = () => {
     localStorage.removeItem("token");
 
     toast.success("Logged out successfully!", {
-      duration: 3000,
+      duration: 1000,
       style: {
         background: "#1f2937",
         color: "#fff",
@@ -90,7 +90,7 @@ const UsersList = () => {
 
     setTimeout(() => {
       navigate("/");
-    }, 3000);
+    }, 1000);
   };
 
   return (
