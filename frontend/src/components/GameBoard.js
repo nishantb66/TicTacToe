@@ -26,6 +26,18 @@ const GameBoard = () => {
       setMessage(`You are playing as ${symbol}`);
     });
 
+    // Notify when another user joins the room
+    newSocket.on("userJoined", (notification) => {
+      toast(notification, {
+        icon: "👋",
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid rgba(107, 114, 128, 0.3)",
+        },
+      });
+    });
+
     // Update game board and turn
     newSocket.on("updateGame", ({ board, turn }) => {
       setBoard(board);
