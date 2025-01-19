@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
     }
 
     // Notify other users in the room about the new player
-    socket.to(roomId).emit("userJoined", `${username} has joined the room.`);
+    socket.to(roomId).emit("userJoined", `Your opponent has joined the room.`);
   });
 
   socket.on("makeMove", ({ roomId, index, symbol }) => {
