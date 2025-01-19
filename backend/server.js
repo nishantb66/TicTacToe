@@ -14,12 +14,19 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://tic-tac-toe-ivory-beta.vercel.app/",
     methods: ["GET", "POST"],
   },
 });
 
-app.use(cors());
+const corsOptions = {
+  origin: "https://tic-tac-toe-ivory-beta.vercel.app/", // Allow requests from this frontend
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true, // If you use cookies or authentication
+};
+
+// Middleware
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/game", gameRoutes);
