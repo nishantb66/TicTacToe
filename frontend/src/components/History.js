@@ -18,7 +18,7 @@ const History = () => {
       } catch (error) {
         console.error("Error fetching game history:", error);
       } finally {
-        setIsLoading(false);
+        setTimeout(() => setIsLoading(false), 1000); // Minimum loading time
       }
     };
 
@@ -30,6 +30,30 @@ const History = () => {
     if (result.includes("lost")) return "from-red-500 to-rose-500";
     return "from-yellow-500 to-amber-500";
   };
+
+  const LoadingSkeleton = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className="bg-black/30 backdrop-blur-sm rounded-xl border border-gray-700/30 p-6"
+        >
+          <div className="w-2/3 h-8 bg-gray-700/30 rounded-lg animate-pulse mb-4"></div>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {[...Array(4)].map((_, j) => (
+                <div
+                  key={j}
+                  className="w-16 h-6 bg-gray-700/30 rounded-md animate-pulse"
+                ></div>
+              ))}
+            </div>
+            <div className="w-1/3 h-4 bg-gray-700/30 rounded animate-pulse mt-4"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 p-4 sm:p-6 lg:p-8">
@@ -50,17 +74,16 @@ const History = () => {
           ← Back to Games
         </button>
 
-        {/* History List */}
+        {/* Content */}
         {isLoading ? (
-          <div className="text-center text-gray-400">Loading history...</div>
-        ) : (
+          <LoadingSkeleton />
+        ) : history.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {history.map((game, index) => (
               <div
                 key={index}
-                className="bg-black/30 backdrop-blur-sm rounded-xl border border-gray-700/30 p-6 transition-all duration-300 hover:scale-[1.02]"
+                className="bg-black/30 backdrop-blur-sm rounded-xl border border-gray-700/30 p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/10"
               >
-                {/* Result Banner */}
                 <div
                   className={`mb-4 px-4 py-2 rounded-lg bg-gradient-to-r ${getResultStyle(
                     game.result
@@ -69,7 +92,6 @@ const History = () => {
                   {game.result}
                 </div>
 
-                {/* Moves History */}
                 <div className="mt-4">
                   <h4 className="text-sm font-medium text-gray-400 mb-2">
                     Moves:
@@ -86,16 +108,13 @@ const History = () => {
                   </div>
                 </div>
 
-                {/* Game Info */}
                 <div className="mt-4 pt-4 border-t border-gray-700/30 text-sm text-gray-400">
                   Game #{history.length - index}
                 </div>
               </div>
             ))}
           </div>
-        )}
-
-        {history.length === 0 && !isLoading && (
+        ) : (
           <div className="text-center text-gray-400 bg-black/30 backdrop-blur-sm rounded-xl border border-gray-700/30 p-8">
             No games played yet. Start playing to build your history!
           </div>
