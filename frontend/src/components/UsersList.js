@@ -123,6 +123,12 @@ const UsersList = () => {
               >
                 View Game History
               </button>
+              <button
+                onClick={() => navigate("/game-ai")}
+                className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-200"
+              >
+                Play with AI
+              </button>
             </div>
 
             {/* Users Grid */}
@@ -201,7 +207,6 @@ const UsersList = () => {
                 </div>
               </div>
             )}
-
 
             {/* Confirmation Dialog */}
             {isConfirmationOpen && (
