@@ -5,6 +5,7 @@ import Register from "./components/Register";
 import GameBoard from "./components/GameBoard";
 import History from "./components/History";
 import UsersList from "./components/UsersList";
+import GameAI from "./components/GameAI";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/main" element={<UsersList />} /> {/* User list page */}
         <Route path="/game/:roomId" element={<GameBoard />} />
         <Route path="/history" element={<History />} />
+        <Route path="/game-ai" element={<GameAI />} />
       </Routes>
     </Router>
   );

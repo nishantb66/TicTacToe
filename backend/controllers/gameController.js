@@ -87,3 +87,122 @@ exports.deleteGame = async (req, res) => {
     res.status(500).json({ message: "Error deleting game", error: err });
   }
 };
+
+exports.getAIMove = async (req, res) => {
+  const { board, difficulty } = req.body;
+
+  const emptyCells = board
+    .map((cell, index) => (cell === null ? index : null))
+    .filter((index) => index !== null);
+
+  const checkWinner = (board) => {
+    const winPatterns = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (const pattern of winPatterns) {
+      const [a, b, c] = pattern;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return board[a];
+      }
+    }
+    return null;
+  };
+
+  const findWinningMove = (board, player) => {
+    for (const index of emptyCells) {
+      const newBoard = [...board];
+      newBoard[index] = player; // Simulate player's move
+      if (checkWinner(newBoard) === player) {
+        return index;
+      }
+    }
+    return null;
+  };
+
+  if (difficulty === "easy") {
+    // Heuristic Algorithm (Easy Mode)
+
+    // Step 1: Check for AI Winning Move
+    const aiWinningMove = findWinningMove(board, "O");
+    if (aiWinningMove !== null) {
+      return res.status(200).json({ move: aiWinningMove });
+    }
+
+    // Step 2: Block Opponent's Winning Move
+    const opponentWinningMove = findWinningMove(board, "X");
+    if (opponentWinningMove !== null) {
+      return res.status(200).json({ move: opponentWinningMove });
+    }
+
+    // Step 3: Take the Center
+    if (emptyCells.includes(4)) {
+      return res.status(200).json({ move: 4 });
+    }
+
+    // Step 4: Take a Corner
+    const corners = [0, 2, 6, 8];
+    const availableCorners = corners.filter((corner) =>
+      emptyCells.includes(corner)
+    );
+    if (availableCorners.length > 0) {
+      const cornerMove =
+        availableCorners[Math.floor(Math.random() * availableCorners.length)];
+      return res.status(200).json({ move: cornerMove });
+    }
+
+    // Step 5: Random Move
+    const randomMove =
+      emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    return res.status(200).json({ move: randomMove });
+  } else if (difficulty === "medium") {
+    // Minimax Algorithm (Medium Mode)
+
+    const minimax = (board, isMaximizing) => {
+      const winner = checkWinner(board);
+      if (winner === "X") return -1; // Human wins
+      if (winner === "O") return 1; // AI wins
+      if (!board.includes(null)) return 0; // Draw
+
+      const scores = [];
+      const emptyCells = board
+        .map((cell, index) => (cell === null ? index : null))
+        .filter((index) => index !== null);
+
+      for (const index of emptyCells) {
+        const newBoard = [...board];
+        newBoard[index] = isMaximizing ? "O" : "X"; // AI maximizes, Human minimizes
+
+        const score = minimax(newBoard, !isMaximizing); // Recursive call
+        scores.push(score);
+      }
+
+      return isMaximizing ? Math.max(...scores) : Math.min(...scores);
+    };
+
+    const scores = [];
+    const emptyCells = board
+      .map((cell, index) => (cell === null ? index : null))
+      .filter((index) => index !== null);
+
+    for (const index of emptyCells) {
+      const newBoard = [...board];
+      newBoard[index] = "O"; // AI plays as "O"
+      scores.push({ index, score: minimax(newBoard, false) });
+    }
+
+    const bestMove = scores.reduce((best, curr) =>
+      curr.score > best.score ? curr : best
+    );
+    return res.status(200).json({ move: bestMove.index });
+  }
+
+  // Fallback for invalid difficulty
+  return res.status(400).json({ error: "Invalid difficulty level provided." });
+};
