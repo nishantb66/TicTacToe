@@ -21,9 +21,9 @@ const Register = () => {
       toast.success("Registration successful!", {
         duration: 2000,
         style: {
-          background: "#1f2937",
-          color: "#fff",
-          border: "1px solid rgba(107, 114, 128, 0.3)",
+          background: "#f0f0f0",
+          color: "#333",
+          border: "1px solid #ddd",
         },
       });
 
@@ -33,9 +33,9 @@ const Register = () => {
     } catch (err) {
       toast.error("Registration failed. Please try again.", {
         style: {
-          background: "#1f2937",
-          color: "#fff",
-          border: "1px solid rgba(239, 68, 68, 0.3)",
+          background: "#fef2f2",
+          color: "#b91c1c",
+          border: "1px solid #f5c2c2",
         },
       });
     } finally {
@@ -44,61 +44,62 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
+        {/* Toast Notifications */}
         <Toaster position="top-center" />
 
-        <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-gray-700/30 shadow-xl">
+        {/* Register Card */}
+        <div className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              Create Account
-            </h2>
-            <p className="mt-2 text-gray-400">Join us and start playing</p>
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
+            <p className="mt-2 text-gray-600">Join us and start playing</p>
           </div>
 
           {/* Register Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/40 transition-all duration-300 placeholder:text-gray-500 text-white"
-                />
-              </div>
-              <div>
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/40 transition-all duration-300 placeholder:text-gray-500 text-white"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Username
+              </label>
+              <input
+                type="text"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="w-full px-4 py-3 mt-1 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-3 mt-1 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+              />
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Creating Account..." : "Register"}
             </button>
           </form>
 
           {/* Login Link */}
-          <p className="mt-6 text-center text-gray-400">
+          <p className="mt-6 text-center text-gray-600">
             Already have an account?{" "}
-            <Link
-              to="/"
-              className="font-medium text-purple-500 hover:text-purple-400 transition-colors duration-300"
-            >
+            <Link to="/" className="text-blue-500 font-medium hover:underline">
               Sign in here
             </Link>
           </p>
