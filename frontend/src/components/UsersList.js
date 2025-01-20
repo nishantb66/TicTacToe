@@ -30,7 +30,7 @@ const UsersList = () => {
       } catch (err) {
         console.error("Error fetching users:", err);
       } finally {
-        setTimeout(() => setIsLoading(false), 1000); // Minimum loading time
+        setTimeout(() => setIsLoading(false), 1000);
       }
     };
 
@@ -52,7 +52,7 @@ const UsersList = () => {
     toast.success("Logged out successfully!", {
       duration: 1000,
       style: {
-        background: "#f5f5f5",
+        background: "#ffffff",
         color: "#333",
         border: "1px solid #ddd",
       },
@@ -64,11 +64,11 @@ const UsersList = () => {
   };
 
   const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {[...Array(6)].map((_, i) => (
         <div
           key={i}
-          className="bg-gray-200 rounded-lg shadow-md p-4 animate-pulse"
+          className="bg-gray-200 rounded-lg shadow-md p-6 animate-pulse"
         >
           <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
           <div className="h-4 bg-gray-300 rounded w-1/2"></div>
@@ -78,20 +78,20 @@ const UsersList = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gray-50 text-gray-800 p-6 sm:p-8">
+      <div className="max-w-6xl mx-auto space-y-8">
         {isLoading ? (
           <LoadingSkeleton />
         ) : (
           <>
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-center bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold text-gray-800">
+              <h2 className="text-3xl font-semibold text-gray-800">
                 Welcome, {username}!
               </h2>
               <button
                 onClick={handleLogout}
-                className="mt-4 sm:mt-0 px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-200"
+                className="mt-4 sm:mt-0 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
               >
                 Logout
               </button>
@@ -99,35 +99,35 @@ const UsersList = () => {
 
             {/* Controls Section */}
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-              <h3 className="text-lg font-medium text-gray-700">
+              <h3 className="text-lg font-medium text-gray-600">
                 Players Online
               </h3>
               <button
                 onClick={handleViewHistory}
-                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200"
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
               >
                 View Game History
               </button>
             </div>
 
             {/* Users Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {users.map((user) => (
                 <div
                   key={user._id}
-                  className="bg-white rounded-lg shadow-md p-4 flex items-center justify-between"
+                  className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between"
                 >
                   <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold mr-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold mr-4">
                       {user.username.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-gray-700 font-medium">
+                    <span className="text-gray-800 font-medium">
                       {user.username}
                     </span>
                   </div>
                   <button
                     onClick={() => handleUserClick(user.username)}
-                    className="text-blue-500 hover:underline"
+                    className="text-blue-600 font-medium hover:underline"
                   >
                     Challenge
                   </button>
