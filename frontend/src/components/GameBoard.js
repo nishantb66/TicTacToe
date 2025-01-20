@@ -31,9 +31,9 @@ const GameBoard = () => {
       toast(notification, {
         icon: "👋",
         style: {
-          background: "#1f2937",
-          color: "#fff",
-          border: "1px solid rgba(107, 114, 128, 0.3)",
+          background: "#f9fafb",
+          color: "#333",
+          border: "1px solid #ddd",
         },
       });
     });
@@ -51,9 +51,9 @@ const GameBoard = () => {
       toast(message, {
         icon: message.includes("won") ? "🏆" : "🤝",
         style: {
-          background: "#1f2937",
-          color: "#fff",
-          border: "1px solid rgba(107, 114, 128, 0.3)",
+          background: "#f9fafb",
+          color: "#333",
+          border: "1px solid #ddd",
         },
       });
     });
@@ -72,12 +72,10 @@ const GameBoard = () => {
     };
   }, [roomId, username]);
 
-    const getSymbolClass = (value) => {
-      if (!value) return "";
-      return value === "X"
-        ? "bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent"
-        : "bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent";
-    };
+  const getSymbolClass = (value) => {
+    if (!value) return "";
+    return value === "X" ? "text-blue-600" : "text-red-500";
+  };
 
   const handleCellClick = (index) => {
     if (!socket) return; // Ensure socket exists
@@ -91,18 +89,18 @@ const GameBoard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <Toaster position="top-center" />
 
       <div className="w-full max-w-4xl">
-        <div className="bg-black/30 backdrop-blur-sm rounded-2xl border border-gray-700/30 p-8">
+        <div className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
           {/* Header Section */}
-          <div className="text-center mb-8 space-y-4">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <div className="text-center mb-6 space-y-4">
+            <h2 className="text-2xl font-bold text-gray-800">
               Game Room: {roomId}
             </h2>
-            <div className="bg-gray-800/50 rounded-lg p-3 inline-block">
-              <h3 className="text-xl text-gray-200">
+            <div className="bg-gray-100 rounded-lg p-3 inline-block">
+              <h3 className="text-lg text-gray-700">
                 {message || `It's ${turn}'s turn`}
               </h3>
             </div>
@@ -114,15 +112,12 @@ const GameBoard = () => {
               <div
                 key={index}
                 onClick={() => handleCellClick(index)}
-                className={`
-                  aspect-square flex items-center justify-center
-                  text-5xl md:text-6xl font-bold
-                  bg-gray-800/30 border border-gray-700/30
-                  rounded-lg cursor-pointer
-                  transition-all duration-300
+                className={`aspect-square flex items-center justify-center
+                  text-4xl font-bold bg-gray-100 border border-gray-300 rounded-lg
+                  cursor-pointer transition-all duration-200
                   ${
                     !cell && turn === playerSymbol
-                      ? "hover:bg-gray-700/30 hover:scale-[1.02]"
+                      ? "hover:bg-gray-200 hover:scale-105"
                       : "cursor-not-allowed"
                   }
                 `}
@@ -134,8 +129,8 @@ const GameBoard = () => {
 
           {/* Player Info */}
           <div className="mt-8 text-center">
-            <div className="inline-block bg-gray-800/50 rounded-lg px-4 py-2">
-              <span className="text-gray-400">Playing as: </span>
+            <div className="inline-block bg-gray-100 rounded-lg px-4 py-2">
+              <span className="text-gray-500">Playing as: </span>
               <span className={getSymbolClass(playerSymbol)}>
                 {playerSymbol}
               </span>
@@ -146,10 +141,8 @@ const GameBoard = () => {
           <div className="mt-8 text-center">
             <button
               onClick={handleBackToUsers}
-              className="px-6 py-2 bg-gray-800/50 hover:bg-gray-700/50 
-                border border-gray-700/30 rounded-lg
-                transition-all duration-300 hover:scale-[1.02]
-                text-gray-300 hover:text-white"
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
+                transition-all duration-200"
             >
               Back to Users List
             </button>
