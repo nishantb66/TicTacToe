@@ -126,7 +126,7 @@ exports.getAIMove = async (req, res) => {
     return null;
   };
 
-  if (difficulty === "easy") {
+  if (difficulty === "medium") {
     // Heuristic Algorithm (Easy Mode)
 
     // Step 1: Check for AI Winning Move
@@ -161,7 +161,7 @@ exports.getAIMove = async (req, res) => {
     const randomMove =
       emptyCells[Math.floor(Math.random() * emptyCells.length)];
     return res.status(200).json({ move: randomMove });
-  } else if (difficulty === "medium") {
+  } else if (difficulty === "hard") {
     // Minimax Algorithm (Medium Mode)
 
     const minimax = (board, isMaximizing) => {

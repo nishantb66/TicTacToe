@@ -6,7 +6,7 @@ const GameAI = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [turn, setTurn] = useState("X");
   const [message, setMessage] = useState("Your turn");
-  const [difficulty, setDifficulty] = useState("easy"); // easy or medium
+  const [difficulty, setDifficulty] = useState("medium"); // easy or medium
   const [gameOver, setGameOver] = useState(false);
 
   const checkWinner = (board) => {
@@ -104,8 +104,8 @@ const GameAI = () => {
             onChange={(e) => setDifficulty(e.target.value)}
             className="border border-gray-300 rounded-md px-4 py-2 text-gray-700"
           >
-            <option value="easy">Easy</option>
             <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
           </select>
         </div>
 
