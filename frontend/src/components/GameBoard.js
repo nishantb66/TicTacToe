@@ -38,13 +38,39 @@ const GameBoard = () => {
       });
     });
 
+    // Notify the user they created the room and are the first to go
+    newSocket.on("roomCreated", (message) => {
+      toast(message, {
+        icon: "🚀",
+        style: {
+          background: "#d1fae5",
+          color: "#065f46",
+          border: "1px solid #34d399",
+        },
+      });
+      setMessage(message); // Optional: update the displayed message
+    });
+
+    // Notify when opponent leaves the room
+    newSocket.on("opponentLeft", (notification) => {
+      toast(notification, {
+        icon: "🚶",
+        style: {
+          background: "#fef3c7",
+          color: "#92400e",
+          border: "1px solid #fcd34d",
+        },
+      });
+      setMessage("Opponent left the game."); // Optional message update
+    });
+
     // Update game board and turn
     newSocket.on("updateGame", ({ board, turn }) => {
       setBoard(board);
       setTurn(turn);
     });
 
-    // Handle game over
+    // // Handle game over
     newSocket.on("gameOver", ({ message, board }) => {
       setBoard(board);
       setMessage(message);

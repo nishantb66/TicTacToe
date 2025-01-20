@@ -14,7 +14,7 @@ const History = () => {
           `${process.env.REACT_APP_API_URL}/game/history`,
           { headers: { Authorization: localStorage.getItem("token") } }
         );
-        setHistory(response.data);
+        setHistory(response.data); // Games are already sorted by backend
       } catch (error) {
         console.error("Error fetching game history:", error);
       } finally {
@@ -25,10 +25,25 @@ const History = () => {
     fetchHistory();
   }, []);
 
+  const handleDelete = async (gameId) => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/game/${gameId}`, {
+        headers: { Authorization: localStorage.getItem("token") },
+      });
+
+      // Remove the deleted game from the local state
+      setHistory((prevHistory) =>
+        prevHistory.filter((game) => game._id !== gameId)
+      );
+    } catch (error) {
+      console.error("Error deleting game:", error);
+    }
+  };
+
   const getResultStyle = (result) => {
-    if (result.includes("won")) return "text-green-600 border-green-400";
-    if (result.includes("lost")) return "text-red-600 border-red-400";
-    return "text-yellow-600 border-yellow-400";
+    if (result.includes("wins")) return "text-green-600 border-green-400";
+    if (result === "draw") return "text-yellow-600 border-yellow-400";
+    return "text-red-600 border-red-400";
   };
 
   const LoadingSkeleton = () => (
@@ -81,6 +96,7 @@ const History = () => {
                 key={index}
                 className="bg-white rounded-lg border border-gray-300 p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
               >
+                {/* Result */}
                 <div
                   className={`mb-4 px-4 py-2 rounded-lg text-lg font-semibold border ${getResultStyle(
                     game.result
@@ -89,7 +105,16 @@ const History = () => {
                   {game.result}
                 </div>
 
-                <div className="mt-4">
+                {/* Game Date */}
+                <div className="text-sm text-gray-500 mb-2">
+                  Date:{" "}
+                  <span className="text-gray-800">
+                    {new Date(game.createdAt).toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Moves */}
+                <div>
                   <h4 className="text-sm font-medium text-gray-600 mb-2">
                     Moves:
                   </h4>
@@ -105,8 +130,14 @@ const History = () => {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-500">
-                  Game #{history.length - index}
+                {/* Delete Button */}
+                <div className="mt-4">
+                  <button
+                    onClick={() => handleDelete(game._id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200"
+                  >
+                    Clear
+                  </button>
                 </div>
               </div>
             ))}

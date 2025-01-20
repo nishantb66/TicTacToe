@@ -31,13 +31,16 @@ const Register = () => {
         navigate("/");
       }, 2000);
     } catch (err) {
-      toast.error("Registration failed. Please try again.", {
-        style: {
-          background: "#fef2f2",
-          color: "#b91c1c",
-          border: "1px solid #f5c2c2",
-        },
-      });
+      toast.error(
+        "Username may already exist or your password may not be unique, try again!!",
+        {
+          style: {
+            background: "#fef2f2",
+            color: "#b91c1c",
+            border: "1px solid #f5c2c2",
+          },
+        }
+      );
     } finally {
       setIsLoading(false);
     }

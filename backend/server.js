@@ -56,6 +56,10 @@ io.on("connection", (socket) => {
         board: Array(9).fill(null),
       };
       io.to(socket.id).emit("assignSymbol", "X");
+      io.to(socket.id).emit(
+        "roomCreated",
+        "You have created the room, so you are the first to go!"
+      );
     } else if (activeGames[roomId].players.length === 1) {
       activeGames[roomId].players.push({ socketId: socket.id, username });
       io.to(socket.id).emit("assignSymbol", "O");
@@ -102,12 +106,23 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     for (const roomId in activeGames) {
       const game = activeGames[roomId];
-      if (game.players.some((player) => player.socketId === socket.id)) {
+      const leavingPlayer = game.players.find(
+        (player) => player.socketId === socket.id
+      );
+      const remainingPlayer = game.players.find(
+        (player) => player.socketId !== socket.id
+      );
+
+      if (leavingPlayer) {
         delete activeGames[roomId];
-        io.to(roomId).emit(
-          "gameOver",
-          "The other player disconnected. Game over!"
-        );
+        io.to(roomId).emit("The other player disconnected. Game over!");
+
+        if (remainingPlayer) {
+          io.to(remainingPlayer.socketId).emit(
+            "opponentLeft",
+            "Your opponent left the room."
+          );
+        }
       }
     }
   });

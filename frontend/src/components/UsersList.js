@@ -6,7 +6,10 @@ import { toast } from "react-hot-toast";
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,6 +25,7 @@ const UsersList = () => {
         );
 
         setUsername(userResponse.data.username);
+        setPassword(userResponse.data.password);
         setUsers(
           usersResponse.data.filter(
             (user) => user.username !== userResponse.data.username
@@ -37,13 +41,30 @@ const UsersList = () => {
     fetchUsers();
   }, []);
 
-  const handleUserClick = (otherUsername) => {
-    const roomId = [username, otherUsername].sort().join("_");
-    navigate(`/game/${roomId}`);
+  const handleUpdate = async () => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/auth/update`,
+        { username, password },
+        { headers: { Authorization: localStorage.getItem("token") } }
+      );
+      toast.success(response.data.message, { duration: 2000 });
+
+      // Close modals after successful update
+      setIsProfileOpen(false);
+      setIsConfirmationOpen(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Error updating user");
+    }
   };
 
   const handleViewHistory = () => {
     navigate("/history");
+  };
+
+  const handleUserClick = (otherUsername) => {
+    const roomId = [username, otherUsername].sort().join("_");
+    navigate(`/game/${roomId}`);
   };
 
   const handleLogout = () => {
@@ -63,25 +84,11 @@ const UsersList = () => {
     }, 1000);
   };
 
-  const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          className="bg-gray-200 rounded-lg shadow-md p-6 animate-pulse"
-        >
-          <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
-          <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 p-6 sm:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         {isLoading ? (
-          <LoadingSkeleton />
+          <div>Loading...</div>
         ) : (
           <>
             {/* Header Section */}
@@ -89,12 +96,20 @@ const UsersList = () => {
               <h2 className="text-3xl font-semibold text-gray-800">
                 Welcome, {username}!
               </h2>
-              <button
-                onClick={handleLogout}
-                className="mt-4 sm:mt-0 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
-              >
-                Logout
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsProfileOpen(true)}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+                >
+                  View Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
 
             {/* Controls Section */}
@@ -134,6 +149,77 @@ const UsersList = () => {
                 </div>
               ))}
             </div>
+
+            {/* Profile Modal */}
+            {isProfileOpen && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+                  <h3 className="text-xl font-bold mb-4">Your Profile</h3>
+                  <div className="mb-4">
+                    <label className="block text-gray-600 mb-2">Username</label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                  <div className="mb-4"></div>
+
+                  <div className="flex justify-end gap-4">
+                    <button
+                      onClick={() => {
+                        setIsProfileOpen(false); // Close the profile modal
+                      }}
+                      className="px-4 py-2 bg-gray-200 rounded-md"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsConfirmationOpen(true); // Open the confirmation modal// Refresh the page
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Confirmation Dialog */}
+            {isConfirmationOpen && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+                  <h3 className="text-xl font-bold mb-4">Confirm Update</h3>
+                  <p className="text-gray-600 mb-6">
+                    Are you sure you want to update your profile?
+                  </p>
+                  <div className="flex justify-end gap-4">
+                    <button
+                      onClick={() => {
+                        setIsConfirmationOpen(false); // Close the confirmation modal
+                        window.location.reload(); // Refresh the page
+                      }}
+                      className="px-4 py-2 bg-gray-200 rounded-md"
+                    >
+                      No
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleUpdate(); // Execute the update functionality
+                        window.location.reload(); // Refresh the page after the update
+                      }}
+                      href="/main"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                    >
+                      Yes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
