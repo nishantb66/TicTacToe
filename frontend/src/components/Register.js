@@ -58,6 +58,9 @@ const Register = () => {
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
             <p className="mt-2 text-gray-600">Join us and start playing</p>
+            <p className="mt-2 text-red-600">
+              Note: Avoid using spaces in username and password
+            </p>
           </div>
 
           {/* Register Form */}

@@ -19,7 +19,7 @@ const Login = () => {
 
       // Show success toast and navigate after delay
       toast.success("Login successful!", {
-        duration: 2000,
+        duration: 1000,
         style: {
           background: "#f0f0f0",
           color: "#333",
@@ -29,15 +29,18 @@ const Login = () => {
 
       setTimeout(() => {
         navigate("/main");
-      }, 2000);
+      }, 1000);
     } catch (err) {
-      toast.error("Invalid credentials. Please try again.", {
-        style: {
-          background: "#fef2f2",
-          color: "#b91c1c",
-          border: "1px solid #f5c2c2",
-        },
-      });
+      toast.error(
+        "Invalid credentials, if you have spaces then remove it and retry",
+        {
+          style: {
+            background: "#fef2f2",
+            color: "#b91c1c",
+            border: "1px solid #f5c2c2",
+          },
+        }
+      );
     }
   };
 
