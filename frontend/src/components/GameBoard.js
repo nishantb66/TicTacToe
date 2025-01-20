@@ -11,6 +11,7 @@ const GameBoard = () => {
   const [turn, setTurn] = useState("X");
   const [playerSymbol, setPlayerSymbol] = useState("");
   const [message, setMessage] = useState("");
+  const [opponentJoined, setOpponentJoined] = useState(false); // Track if opponent has joined
   const username = localStorage.getItem("username");
 
   useEffect(() => {
@@ -28,6 +29,7 @@ const GameBoard = () => {
 
     // Notify when another user joins the room
     newSocket.on("userJoined", (notification) => {
+      setOpponentJoined(true); // Opponent has joined
       toast(notification, {
         icon: "👋",
         style: {
@@ -48,11 +50,12 @@ const GameBoard = () => {
           border: "1px solid #34d399",
         },
       });
-      setMessage(message); // Optional: update the displayed message
+      setMessage(message);
     });
 
     // Notify when opponent leaves the room
     newSocket.on("opponentLeft", (notification) => {
+      setOpponentJoined(false); // Opponent has left
       toast(notification, {
         icon: "🚶",
         style: {
@@ -61,7 +64,7 @@ const GameBoard = () => {
           border: "1px solid #fcd34d",
         },
       });
-      setMessage("Opponent left the game."); // Optional message update
+      setMessage("Opponent left the game.");
     });
 
     // Update game board and turn
@@ -70,7 +73,7 @@ const GameBoard = () => {
       setTurn(turn);
     });
 
-    // // Handle game over
+    // Handle game over
     newSocket.on("gameOver", ({ message, board }) => {
       setBoard(board);
       setMessage(message);
@@ -105,7 +108,7 @@ const GameBoard = () => {
 
   const handleCellClick = (index) => {
     if (!socket) return; // Ensure socket exists
-    if (board[index] || turn !== playerSymbol) return;
+    if (board[index] || turn !== playerSymbol || !opponentJoined) return; // Disable if opponent not joined
 
     socket.emit("makeMove", { roomId, index, symbol: playerSymbol });
   };
@@ -142,7 +145,7 @@ const GameBoard = () => {
                   text-4xl font-bold bg-gray-100 border border-gray-300 rounded-lg
                   cursor-pointer transition-all duration-200
                   ${
-                    !cell && turn === playerSymbol
+                    !cell && turn === playerSymbol && opponentJoined
                       ? "hover:bg-gray-200 hover:scale-105"
                       : "cursor-not-allowed"
                   }
