@@ -50,7 +50,9 @@ io.on("connection", (socket) => {
     socket.join(roomId);
 
     if (!activeGames[roomId]) {
+      // Create a new room with the host
       activeGames[roomId] = {
+        host: socket.id,
         players: [{ socketId: socket.id, username }],
         turn: "X",
         board: Array(9).fill(null),
@@ -60,10 +62,17 @@ io.on("connection", (socket) => {
         "roomCreated",
         "You have created the room, so you are the first to go!"
       );
-    } else if (activeGames[roomId].players.length === 1) {
+    } else if (activeGames[roomId].players.length < 2) {
+      // Add the opponent to the room
       activeGames[roomId].players.push({ socketId: socket.id, username });
       io.to(socket.id).emit("assignSymbol", "O");
       io.to(roomId).emit("gameStart", "Game is ready. Let the match begin!");
+
+      // Send the current game state to the newly joined opponent
+      io.to(socket.id).emit("updateGame", {
+        board: activeGames[roomId].board,
+        turn: activeGames[roomId].turn,
+      });
     } else {
       io.to(socket.id).emit("roomFull", "Room is full!");
     }
@@ -106,23 +115,30 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     for (const roomId in activeGames) {
       const game = activeGames[roomId];
-      const leavingPlayer = game.players.find(
+      const leavingPlayerIndex = game.players.findIndex(
         (player) => player.socketId === socket.id
       );
-      const remainingPlayer = game.players.find(
-        (player) => player.socketId !== socket.id
-      );
 
-      if (leavingPlayer) {
-        delete activeGames[roomId];
-        io.to(roomId).emit("The other player disconnected. Game over!");
+      if (leavingPlayerIndex > -1) {
+        const leavingPlayer = game.players[leavingPlayerIndex];
+        const isHost = socket.id === game.host;
 
-        if (remainingPlayer) {
-          io.to(remainingPlayer.socketId).emit(
+        if (isHost) {
+          // If the host leaves, end the game and delete the room
+          io.to(roomId).emit(
             "opponentLeft",
-            "Your opponent left the room."
+            "The host has left the game. Room is closed."
+          );
+          delete activeGames[roomId];
+        } else {
+          // If the opponent leaves, notify the host but keep the room active
+          game.players.splice(leavingPlayerIndex, 1); // Remove the opponent
+          io.to(game.host).emit(
+            "opponentLeft",
+            "Your opponent left the room. Waiting for the opponent."
           );
         }
+        break;
       }
     }
   });

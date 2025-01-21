@@ -48,7 +48,7 @@ const GameBoard = () => {
           border: "1px solid #34d399",
         },
       });
-      setMessage(message); // Optional: update the displayed message
+      // setMessage(message); // Optional: update the displayed message
     });
 
     // Notify when opponent leaves the room
@@ -61,7 +61,7 @@ const GameBoard = () => {
           border: "1px solid #fcd34d",
         },
       });
-      setMessage("Opponent left the game."); // Optional message update
+      // setMessage("Opponent left the game."); // Optional message update
     });
 
     // Update game board and turn

@@ -3,23 +3,33 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   const { username, password } = req.body;
-  try {
-    const existingUsername = await User.findOne({ username });
-    const existingPassword = await User.findOne({ password });
 
+  // Trim spaces from username and password
+  const trimmedUsername = username.trim();
+  const trimmedPassword = password.trim();
+
+  try {
+    // Check if the username already exists
+    const existingUsername = await User.findOne({ username: trimmedUsername });
     if (existingUsername) {
       return res.status(400).json({ message: "Username already exists." });
     }
 
+    // Check if the password already exists
+    const existingPassword = await User.findOne({ password: trimmedPassword });
     if (existingPassword) {
-      return res
-        .status(400)
-        .json({ message: "Set a different password; it's not unique." });
+      return res.status(400).json({
+        message: "Try a different and unique password.",
+      });
     }
 
-    const user = new User({ username, password });
+    // Create a new user if both username and password are unique
+    const user = new User({
+      username: trimmedUsername,
+      password: trimmedPassword,
+    });
     await user.save();
-    res.status(201).json({ message: "User registered" });
+    res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -27,9 +37,19 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;
+
+  // Trim spaces from username and password
+  const trimmedUsername = username.trim();
+  const trimmedPassword = password.trim();
+
   try {
-    const user = await User.findOne({ username, password });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    const user = await User.findOne({
+      username: trimmedUsername,
+      password: trimmedPassword,
+    });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     res.status(200).json({ token });
