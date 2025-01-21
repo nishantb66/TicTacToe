@@ -1,23 +1,24 @@
 const Game = require("../models/Game");
 
-// Save the game result
-// Save the game result
+/**
+ * @description Save the game result
+ */
 exports.saveGameResult = async (req, res) => {
   try {
     const { board, result, players } = req.body;
 
-    // Ensure board, result, and players are provided
+    // Validate input data
     if (!board || !result || !players) {
       return res
         .status(400)
         .json({ message: "Board, result, and players are required" });
     }
 
-    // Create a game entry for both players
+    // Create and save the game record
     const game = new Game({
-      players, // Both players
-      moves: board,
-      result, // Correct result format (e.g., "X wins", "O wins", or "draw")
+      players, // Array of player usernames
+      moves: board, // Game board state
+      result, // Game result: "X wins", "O wins", or "draw"
     });
 
     const savedGame = await game.save();
@@ -30,28 +31,28 @@ exports.saveGameResult = async (req, res) => {
   }
 };
 
-// Fetch game history for the authenticated user
-// Fetch game history for the authenticated user
+/**
+ * @description Fetch game history for the authenticated user
+ */
 exports.getGameHistory = async (req, res) => {
   try {
-    // Ensure `username` is available from authentication middleware
-    const username = req.user.username;
+    const username = req.user.username; // Username from authentication middleware
 
-    // Find games where the user is one of the players
+    // Find games where the user participated
     const games = await Game.find({ players: username })
-      .select("result moves players winner createdAt")
+      .select("result moves players createdAt")
       .sort({ createdAt: -1 }); // Sort by most recent first
 
-    // Format each game to include opponent username
+    // Add the opponent's username for each game
     const formattedGames = games.map((game) => {
-      const opponent = game.players.find((player) => player !== username); // Identify the opponent
+      const opponent = game.players.find((player) => player !== username);
       return {
         ...game._doc,
-        opponent, // Add opponent's username
+        opponent,
       };
     });
 
-    res.status(200).json(formattedGames); // Send formatted games
+    res.status(200).json(formattedGames);
   } catch (err) {
     console.error("Error fetching game history:", err);
     res
@@ -60,14 +61,15 @@ exports.getGameHistory = async (req, res) => {
   }
 };
 
-// Delete a game from history
+/**
+ * @description Delete a game from history
+ */
 exports.deleteGame = async (req, res) => {
   try {
     const { gameId } = req.params;
 
-    // Find the game and ensure the authenticated user is a participant
+    // Check if the game exists and if the user is a participant
     const game = await Game.findById(gameId);
-
     if (!game) {
       return res.status(404).json({ message: "Game not found" });
     }
@@ -80,7 +82,6 @@ exports.deleteGame = async (req, res) => {
 
     // Delete the game
     await Game.findByIdAndDelete(gameId);
-
     res.status(200).json({ message: "Game deleted successfully" });
   } catch (err) {
     console.error("Error deleting game:", err);
@@ -88,13 +89,18 @@ exports.deleteGame = async (req, res) => {
   }
 };
 
+/**
+ * @description Get AI's next move
+ */
 exports.getAIMove = async (req, res) => {
   const { board, difficulty } = req.body;
 
+  // Find all empty cells on the board
   const emptyCells = board
     .map((cell, index) => (cell === null ? index : null))
     .filter((index) => index !== null);
 
+  // Check if there's a winner
   const checkWinner = (board) => {
     const winPatterns = [
       [0, 1, 2],
@@ -115,10 +121,11 @@ exports.getAIMove = async (req, res) => {
     return null;
   };
 
+  // Find a winning move for the player
   const findWinningMove = (board, player) => {
     for (const index of emptyCells) {
       const newBoard = [...board];
-      newBoard[index] = player; // Simulate player's move
+      newBoard[index] = player; // Simulate the move
       if (checkWinner(newBoard) === player) {
         return index;
       }
@@ -126,27 +133,18 @@ exports.getAIMove = async (req, res) => {
     return null;
   };
 
+  // AI logic for "medium" difficulty
   if (difficulty === "medium") {
-    // Heuristic Algorithm (Easy Mode)
-
-    // Step 1: Check for AI Winning Move
     const aiWinningMove = findWinningMove(board, "O");
-    if (aiWinningMove !== null) {
+    if (aiWinningMove !== null)
       return res.status(200).json({ move: aiWinningMove });
-    }
 
-    // Step 2: Block Opponent's Winning Move
     const opponentWinningMove = findWinningMove(board, "X");
-    if (opponentWinningMove !== null) {
+    if (opponentWinningMove !== null)
       return res.status(200).json({ move: opponentWinningMove });
-    }
 
-    // Step 3: Take the Center
-    if (emptyCells.includes(4)) {
-      return res.status(200).json({ move: 4 });
-    }
+    if (emptyCells.includes(4)) return res.status(200).json({ move: 4 });
 
-    // Step 4: Take a Corner
     const corners = [0, 2, 6, 8];
     const availableCorners = corners.filter((corner) =>
       emptyCells.includes(corner)
@@ -157,13 +155,13 @@ exports.getAIMove = async (req, res) => {
       return res.status(200).json({ move: cornerMove });
     }
 
-    // Step 5: Random Move
     const randomMove =
       emptyCells[Math.floor(Math.random() * emptyCells.length)];
     return res.status(200).json({ move: randomMove });
-  } else if (difficulty === "hard") {
-    // Minimax Algorithm (Medium Mode)
+  }
 
+  // AI logic for "hard" difficulty using Minimax algorithm
+  if (difficulty === "hard") {
     const minimax = (board, isMaximizing) => {
       const winner = checkWinner(board);
       if (winner === "X") return -1; // Human wins
@@ -171,31 +169,21 @@ exports.getAIMove = async (req, res) => {
       if (!board.includes(null)) return 0; // Draw
 
       const scores = [];
-      const emptyCells = board
-        .map((cell, index) => (cell === null ? index : null))
-        .filter((index) => index !== null);
-
       for (const index of emptyCells) {
         const newBoard = [...board];
-        newBoard[index] = isMaximizing ? "O" : "X"; // AI maximizes, Human minimizes
-
-        const score = minimax(newBoard, !isMaximizing); // Recursive call
+        newBoard[index] = isMaximizing ? "O" : "X";
+        const score = minimax(newBoard, !isMaximizing);
         scores.push(score);
       }
 
       return isMaximizing ? Math.max(...scores) : Math.min(...scores);
     };
 
-    const scores = [];
-    const emptyCells = board
-      .map((cell, index) => (cell === null ? index : null))
-      .filter((index) => index !== null);
-
-    for (const index of emptyCells) {
+    const scores = emptyCells.map((index) => {
       const newBoard = [...board];
-      newBoard[index] = "O"; // AI plays as "O"
-      scores.push({ index, score: minimax(newBoard, false) });
-    }
+      newBoard[index] = "O";
+      return { index, score: minimax(newBoard, false) };
+    });
 
     const bestMove = scores.reduce((best, curr) =>
       curr.score > best.score ? curr : best
@@ -203,6 +191,6 @@ exports.getAIMove = async (req, res) => {
     return res.status(200).json({ move: bestMove.index });
   }
 
-  // Fallback for invalid difficulty
+  // Invalid difficulty level
   return res.status(400).json({ error: "Invalid difficulty level provided." });
 };
