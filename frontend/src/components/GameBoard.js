@@ -48,7 +48,6 @@ const GameBoard = () => {
           border: "1px solid #34d399",
         },
       });
-      // setMessage(message); // Optional: update the displayed message
     });
 
     // Notify when opponent leaves the room
@@ -61,7 +60,6 @@ const GameBoard = () => {
           border: "1px solid #fcd34d",
         },
       });
-      // setMessage("Opponent left the game."); // Optional message update
     });
 
     // Update game board and turn
@@ -70,7 +68,7 @@ const GameBoard = () => {
       setTurn(turn);
     });
 
-    // // Handle game over
+    // Handle game over
     newSocket.on("gameOver", ({ message, board }) => {
       setBoard(board);
       setMessage(message);
@@ -114,6 +112,32 @@ const GameBoard = () => {
     navigate("/main"); // Navigate back to the UsersList page
   };
 
+  const handleCopyLink = () => {
+    const gameUrl = `${window.location.origin}/game/${roomId}`;
+    navigator.clipboard
+      .writeText(gameUrl)
+      .then(() => {
+        toast("Game link copied to clipboard!", {
+          icon: "🔗",
+          style: {
+            background: "#e0f7fa",
+            color: "#006064",
+            border: "1px solid #4dd0e1",
+          },
+        });
+      })
+      .catch(() => {
+        toast("Failed to copy game link.", {
+          icon: "❌",
+          style: {
+            background: "#ffebee",
+            color: "#b71c1c",
+            border: "1px solid #ef5350",
+          },
+        });
+      });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <Toaster position="top-center" />
@@ -130,6 +154,12 @@ const GameBoard = () => {
                 {message || `It's ${turn}'s turn`}
               </h3>
             </div>
+            <button
+              onClick={handleCopyLink}
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all duration-200"
+            >
+              Copy Game Link
+            </button>
           </div>
 
           {/* Game Board */}
